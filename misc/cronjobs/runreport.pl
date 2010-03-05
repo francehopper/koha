@@ -25,7 +25,7 @@ use C4::Context;
 
 use Getopt::Long qw(:config auto_help auto_version);
 use Pod::Usage;
-use Mail::Sendmail;
+use C4::Mail;
 use Text::CSV_XS;
 use CGI;
 
@@ -70,6 +70,9 @@ Prints the manual page and exits.
 =item B<-v>
 
 Verbose. Without this flag set, only fatal errors are reported.
+
+=item B<--email>
+To send it by email
 
 =back
 
@@ -180,7 +183,10 @@ foreach my $report (@ARGV) {
             Subject => $subject,
             Message => $message 
         );
-        sendmail(%mail) or warn "mail not sent";
+        my $res = SendEmail ($mail{To}, $mail{Subject}, $mail{Message}, );
+        if (!$res){
+			warn "This email was not sent (misc->cronjobs->runreport.pl)";
+		}
     } else {
         print $message;
     }

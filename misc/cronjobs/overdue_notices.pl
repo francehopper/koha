@@ -280,6 +280,9 @@ my $branchcount = scalar(@overduebranches);
 my $overduebranch_word = scalar @overduebranches > 1 ? 'branches' : 'branch';
 my $branchcodes_word = scalar @branchcodes > 1 ? 'branches' : 'branch';
 
+my $openTag = '\[';
+my $closeTag = '\]';
+
 if ($branchcount) {
     $verbose and warn "Found $branchcount $overduebranch_word with first message enabled: " . join( ', ', map { "'$_'" } @overduebranches ), "\n";
 } else {
@@ -309,7 +312,7 @@ if (@branchcodes) {
     }
 }
 
-# these are the fields that will be substituted into <<item.content>>
+# these are the fields that will be substituted into [item.content]
 my @item_content_fields = split( /,/, $itemscontent );
 
 binmode( STDOUT, ":utf8" );
@@ -463,14 +466,16 @@ END_SQL
                                            }
                     }
                 );
-    
-                my @misses = grep { /./ } map { /^([^>]*)[>]+/; ( $1 || '' ); } split /\</, $letter->{'content'};
+    			
+                my @misses = grep { /./ } map { /^([^$openTag]*)[$closeTag]+/; ( $1 || '' ); } split /$openTag/, $letter->{'content'};
+
                 if (@misses) {
                     $verbose and warn "The following terms were not matched and replaced: \n\t" . join "\n\t", @misses;
                 }
-                $letter->{'content'} =~ s/\<[^<>]*?\>//g;    # Now that we've warned about them, remove them.
-                $letter->{'content'} =~ s/\<[^<>]*?\>//g;    # 2nd pass for the double nesting.
-    
+
+                $letter->{'content'} =~ s/$openTag[^$openTag$closeTag]*?$closeTag//g;    # Now that we've warned about them, remove them.
+                $letter->{'content'} =~ s/$openTag[^$openTag$closeTag]*?$closeTag//g;    # 2nd pass for the double nesting.
+    			
                 if ($nomail) {
     
                     push @output_chunks,
@@ -490,12 +495,14 @@ END_SQL
                         }
                       );
                 } else {
+
                     if ($email) {
                         C4::Letters::EnqueueLetter(
                             {   letter                 => $letter,
                                 borrowernumber         => $borrowernumber,
                                 message_transport_type => 'email',
-                                from_address           => $admin_email_address,
+                                from_address           => C4::Context->preference('MailAccount'),
+                                to_address				=> $email,
                             }
                         );
                     } else {
@@ -585,13 +592,16 @@ substituted keys and values.
 
 sub parse_letter { # FIXME: this code should probably be moved to C4::Letters:parseletter
     my $params = shift;
+    my $openTag = '\[';
+	my $closeTag = '\]';
+	
     foreach my $required (qw( letter borrowernumber )) {
         return unless exists $params->{$required};
     }
 
     if ( $params->{'substitute'} ) {
         while ( my ( $key, $replacedby ) = each %{ $params->{'substitute'} } ) {
-            my $replacefield = "<<$key>>";
+            my $replacefield = $openTag."$key".$closeTag;
             $params->{'letter'}->{title}   =~ s/$replacefield/$replacedby/g;
             $params->{'letter'}->{content} =~ s/$replacefield/$replacedby/g;
         }
@@ -628,6 +638,9 @@ sub parse_letter { # FIXME: this code should probably be moved to C4::Letters:pa
         }
     }
     $params->{'letter'}->{'content'} =~ s/<\/{0,1}?item>//g; # strip all remaining item tags...
+    
+    $params->{'letter'}->{'content-type'} = "text/html";
+    
     return $params->{'letter'};
 }
 

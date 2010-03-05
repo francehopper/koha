@@ -8,7 +8,7 @@ BEGIN {
 }
 use C4::Context;
 use C4::Dates qw/format_date/;
-use Mail::Sendmail;  # comment out if not doing e-mail notices
+use C4::Mail;  # comment out if not doing e-mail notices
 use Getopt::Long;
 use C4::Circulation;
 # use C4::Members;
@@ -107,6 +107,7 @@ sub UpdateNotifySendDate{
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 # work with get notifys
+# With C4::Mail this two lines are not used
 my $smtpserver = 'smtp.yoursmtpserver'; # your smtp server (the server who sent mails)
 my $from = 'your@librarymailadress'; # all the mails sent to the borrowers will appear coming from here.
 
@@ -191,8 +192,7 @@ foreach my $num (@getnofifys) {
         utf8::decode($mailtitle);
 
 			my $mailtext = $content;
-				unshift @{$Mail::Sendmail::mailcfg{'smtp'}} , $smtpserver;
-#                                         set your own mail server name here
+
 					my %mail = ( To      => $email,
 								From    => $from,
 								Subject => $mailtitle,
@@ -201,15 +201,15 @@ foreach my $num (@getnofifys) {
 					);
 				# if we don't have any content for the mail, we don't launch mail, but notify it in a file
 					if ($mailtext ne 'nonotifys') {
-					sendmail(%mail);
+						SendEmail ($mail{To}, $mail{Subject}, $mail{Message}, );
 					}
 					else {
-					print OUT $email ;
+						print OUT $email ;
 					}
 					
 # now deal with the debarred mode
 #		if ($debarred eq 1) {
-# 		�ajouter : si le lecteur est en mode debarred, ajouter la fonction qui nous permettra cela
+# 		ajouter : si le lecteur est en mode debarred, ajouter la fonction qui nous permettra cela
 #		UpdateBorrowerDebarred($num->{'borrowernumber'});
 #		}
 	close(OUT);

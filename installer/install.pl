@@ -117,6 +117,12 @@ if ( $step && $step == 1 ) {
     unless ( eval { require CGI::Carp } ) {
         push @missing, { name => "CGI::Carp" };
     }
+    unless ( eval { require Mail::Sender } ) {
+        push @missing, { name => "Mail::Sender" };
+    }
+    unless ( eval { require IsUTF8 } ) {
+        push @missing, { name => "IsUTF8" };
+    }
 
 
 # The following modules are not mandatory, depends on how the library want to use Koha

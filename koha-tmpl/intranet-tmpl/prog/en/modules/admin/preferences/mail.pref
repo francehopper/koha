@@ -1,0 +1,48 @@
+Mail:
+    -
+        - Your SMTP server
+        - pref: MailSmtp
+          class: textarea
+        - .
+    -
+        - This SMTP server uses this auth protocol 
+        - pref: MailAuthProtocol
+          default: NO-AUTH
+          choices:
+              LOGIN: Login
+              PLAIN: Plain
+              CRAM-MD5: Cram md5
+              NTLM: ntlm
+              NO-AUTH: No auth
+        - .
+    -
+        - Your Email account 
+        - pref: MailAccount
+          class: textarea
+        - to send the emails.
+    -
+        - User of this account 
+        - pref: MailUser
+          class: textarea
+        - .
+    -
+        - Password of this account 
+        - pref: MailPassword
+          class: textarea
+        - .
+    -
+        - Messages charset
+        - pref: MailMessageCharset
+          default: UTF-8
+          choices:
+              UTF-8: utf8
+              ISO-8859-1: iso8859
+        - .
+    -
+        - Messages encoding 
+        - pref: MailMessageEncoding
+          default: UTF-8
+          choices:
+              UTF-8: utf8
+              ISO-8859-1: iso8859
+        - .

@@ -23,7 +23,7 @@ use warnings;
 use CGI;
 use Encode qw(encode);
 
-use Mail::Sendmail;
+use C4::Mail;
 use MIME::QuotedPrint;
 use MIME::Base64;
 use C4::Auth;
@@ -129,46 +129,46 @@ if ( $email ) {
         $email_file = $1;
     }
 
-    if ( $template_res =~ /<MESSAGE>\n(.*)\n<END_MESSAGE>/s ) { $body = encode_qp($1); }
+    if ( $template_res =~ /<MESSAGE>\n(.*)\n<END_MESSAGE>/s ) { $body = $1; }
 
     my $boundary = "====" . time() . "====";
 
     # We set and put the multipart content
     $mail{'content-type'} = "multipart/mixed; boundary=\"$boundary\"";
 
-    my $isofile = encode_base64(encode("UTF-8", $iso2709));
+    #my $isofile = encode_base64(encode("UTF-8", $iso2709));
     $boundary = '--' . $boundary;
 
-    $mail{body} = <<END_OF_BODY;
-$boundary
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+    my @files;
+   
+	my $fileName = time().".mrc";
+	local* fh1;
+	open fh1, '>/tmp/'.$fileName;
+	print fh1 $iso2709;
+	close fh1;
+	push (@files, "/tmp/".$fileName);
 
+    $mail{body} = <<END_OF_BODY;
 $email_header
 $body
-$boundary
-Content-Type: application/octet-stream; name="shelf.iso2709"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="shelf.iso2709"
-
-$isofile
-$boundary--
 END_OF_BODY
 
+
     # Sending mail
-    if ( sendmail %mail ) {
+
+    my $res = SendEmail ($mail{To}, $mail{subject}, $mail{body}, @files);
+    if ( $res ) {
         # do something if it works....
         $template->param( SENT      => "1" );
     }
     else {
         # do something if it doesnt work....
-        warn "Error sending mail: $Mail::Sendmail::error \n";
+        warn "Error sending mail \n";
         $template->param( error => 1 );
     }
 
     $template->param( email => $email );
     output_html_with_http_headers $query, $cookie, $template->output;
-
 
 }else{
     $template->param( shelfid => $shelfid,
