@@ -291,3 +291,7 @@ INSERT INTO `systempreferences` VALUES ('MailSmtp','smtp.domain.com','','Smtp qu
 INSERT INTO `systempreferences` VALUES ('MailUser','','','Usuario para autenticarse en el servidor smtp','free');
 INSERT INTO `systempreferences` VALUES ('MailMessageCharset','ISO-8859-1','','Charset utilizado en los mensajes','free');
 INSERT INTO `systempreferences` VALUES ('MailMessageEncoding','ISO-8859-1','','Encoding utilizado en los mensajes','free');
+
+INSERT INTO `systempreferences` ( `variable` , `value` , `options` , `explanation` , `type` ) VALUES ( 'PrintNoticesMaxLines', '0', '', 'If greater than 0, sets the maximum number of lines an overdue notice will print. If the number of items is greater than this number, the notice will end with a warning asking the borrower to check their online account for a full list of overdue items.', 'Integer' );
+INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES('ILS-DI','0','Enables ILS-DI services at OPAC.','','YesNo');
+INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES('ILS-DI:Authorized_IPs','','.','Restricts usage of ILS-DI to some IPs','Free');

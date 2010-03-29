@@ -13,9 +13,9 @@ package C4::Charset;
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 # A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with
-# Koha; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
-# Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU General Public License along
+# with Koha; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use strict;
 use warnings;
@@ -751,11 +751,14 @@ $chars{0xb2}=0x00e0;#3/2leftlowsinglequotationmark
 $chars{0xb3}=0x00e7;#3/2leftlowsinglequotationmark
 # $chars{0xb4}='è';
 $chars{0xb4}=0x00e8;
+$chars{0xbd}=0x02b9;
+$chars{0xbe}=0x02ba;
 # $chars{0xb5}='é';
 $chars{0xb5}=0x00e9;
 $chars{0x97}=0x003c;#3/2leftlowsinglequotationmark
 $chars{0x98}=0x003e;#3/2leftlowsinglequotationmark
-$chars{0xfa}=0x0153;#oe
+$chars{0xfa}=0x0153; #oe
+$chars{0xea}=0x0152; #oe
 $chars{0x81d1}=0x00b0;
 
 ####

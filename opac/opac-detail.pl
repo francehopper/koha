@@ -13,9 +13,9 @@
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 # A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with
-# Koha; if not, write to the Free Software Foundation, Inc., 59 Temple Place,
-# Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU General Public License along
+# with Koha; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 use strict;
@@ -364,9 +364,11 @@ if ( C4::Context->preference("OPACAmazonEnabled") ) {
 my $syndetics_elements;
 
 if ( C4::Context->preference("SyndeticsEnabled") ) {
+    $template->param("SyndeticsEnabled" => 1);
+    $template->param("SyndeticsClientCode" => C4::Context->preference("SyndeticsClientCode"));
 	eval {
-    $syndetics_elements = &get_syndetics_index($isbn,$upc,$oclc);
-	for my $element (values %$syndetics_elements) {
+	    $syndetics_elements = &get_syndetics_index($isbn,$upc,$oclc);
+	    for my $element (values %$syndetics_elements) {
 		$template->param("Syndetics$element"."Exists" => 1 );
 		#warn "Exists: "."Syndetics$element"."Exists";
 	}
@@ -378,8 +380,8 @@ if ( C4::Context->preference("SyndeticsEnabled")
         && C4::Context->preference("SyndeticsSummary")
         && ( exists($syndetics_elements->{'SUMMARY'}) || exists($syndetics_elements->{'AVSUMMARY'}) ) ) {
 	eval {
-	my $syndetics_summary = &get_syndetics_summary($isbn,$upc,$oclc, $syndetics_elements);
-	$template->param( SYNDETICS_SUMMARY => $syndetics_summary );
+	    my $syndetics_summary = &get_syndetics_summary($isbn,$upc,$oclc, $syndetics_elements);
+	    $template->param( SYNDETICS_SUMMARY => $syndetics_summary );
 	};
 	warn $@ if $@;
 
