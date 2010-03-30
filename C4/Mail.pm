@@ -1,5 +1,22 @@
 package C4::Mail;
 
+# Copyright 2010 Xercode Media Software S.L.
+#
+# This file is part of Koha.
+#
+# Koha is free software; you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# Koha is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with Koha; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 use Mail::Sender;
 use C4::Context;
 use MIME::Base64;
@@ -17,14 +34,14 @@ BEGIN {
 
 =head1 NAME
 
-C4::Mail - Funciones para trabajar con la clase Mail::Sender
+C4::Mail - Functions to work with Mail::Sender class
 
 =head1 SendEmail;
 
-$to 		=> Correo destino del correo
-$subject		=> Asunto
-$message	=> Mensaje o body
-@attachments	=> Array que contiene los ficheros que hay que enviar adjuntos ('/tmp/fichero1.txt','/tmp/fch2.txt') 
+$to 			=> Recipient e-mail
+$subject		=> Subject
+$message		=> Message or body
+@attachments	=> Array that contains the files that will be attached to the email ('/tmp/file1.txt','/tmp/file2.txt') 
 
 }
 
