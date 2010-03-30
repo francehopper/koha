@@ -2209,6 +2209,7 @@ sub AddRenewal {
 }
 
 sub GetRenewCount {
+	# TODO : check if renewalsallowed is OK...
     # check renewal status
     my ($bornum,$itemno)=@_;
     my $dbh = C4::Context->dbh;
@@ -2226,7 +2227,7 @@ sub GetRenewCount {
     my $data = $sth->fetchrow_hashref;
     $renewcount = $data->{'renewals'} if $data->{'renewals'};
     $sth->finish;
-    my $query = "SELECT renewalsallowed FROM items ";
+    my $query = "SELECT renewals FROM items ";
     $query .= (C4::Context->preference('item-level_itypes'))
                 ? "LEFT JOIN itemtypes ON items.itype = itemtypes.itemtype "
                 : "LEFT JOIN biblioitems on items.biblioitemnumber = biblioitems.biblioitemnumber
@@ -2235,7 +2236,7 @@ sub GetRenewCount {
     my $sth2 = $dbh->prepare($query);
     $sth2->execute($itemno);
     my $data2 = $sth2->fetchrow_hashref();
-    $renewsallowed = $data2->{'renewalsallowed'};
+    $renewsallowed = $data2->{'renewals'};
     $renewsleft = $renewsallowed - $renewcount;
     return ($renewcount,$renewsallowed,$renewsleft);
 }

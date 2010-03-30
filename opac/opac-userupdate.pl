@@ -21,7 +21,8 @@ use strict;
 use warnings;
 
 use CGI;
-use Mail::Sendmail;
+use C4::Mail;
+use HTML::Entities;
 
 use C4::Auth;    # checkauth, getborrowernumber.
 use C4::Context;
@@ -90,6 +91,7 @@ has requested to change her/his personal details.
 Please check these new details and make the changes:
 EOF
 
+# TODO : work with a template all this stuff 
     my $streetnumber = $borr->{'streetnumber'} || '';
     my $address = $borr->{'address'} || '';
     my $address2 = $borr->{'address2'} || '';
@@ -103,7 +105,7 @@ EOF
         if($borr->{$field}) {
             $borrowerfield = $borr->{$field};
         }
-        
+        warn $field;
         # reconstruct the address
         if($field eq "address") {
             $borrowerfield = "$streetnumber $address, $address2";
@@ -117,23 +119,31 @@ EOF
         if($field eq "dateofbirth") {
            $borrowerfield  = format_date( $borr->{'dateofbirth'} ) || '';
         }
+        
+        # reconstruct the email address
+        if($field eq "emailaddress") {
+           $borrowerfield = $borr->{'email'} || '';
+        }
 
+		#warn $borrowerfield ."----". $newfield;
         if($borrowerfield eq $newfield) {
-            $message .= "$field : $borrowerfield  -->  $newfield\n";
+        	$message .= "<strong>$field :</strong> $borrowerfield  -->  $newfield<br/>";
         } else {
-            $message .= uc($field) . " : $borrowerfield  -->  $newfield\n";
+            $message .= "<strong>".uc($field)." :</strong> $borrowerfield  -->  $newfield<br/>";
         }
     }
-    $message .= "\n\nThanks,\nKoha\n\n";
+    $message .= "<p>Thanks,<br/>Koha</p>";
     my %mail = (
         To      => $updateemailaddress,
         From    => $updateemailaddress,
         Subject => "User Request for update of Record.",
         Message => $message,
-        'Content-Type' => 'text/plain; charset="utf8"',
+        'Content-Type' => 'text/html; charset="utf8"',
     );
 
-    if ( sendmail %mail ) {
+	my $res = SendEmail ($mail{To}, $mail{Subject}, $mail{Message}, );
+	
+    if ( $res ) {
 
         # do something if it works....
         warn "Mail sent ok\n";
@@ -143,7 +153,7 @@ EOF
     else {
 
         # do something if it doesnt work....
-        warn "Error sending mail: $Mail::Sendmail::error \n";
+        warn "Error sending mail \n";
     }
 }
 

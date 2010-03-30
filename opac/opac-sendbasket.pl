@@ -21,7 +21,8 @@ use warnings;
 use CGI;
 use Encode qw(encode);
 
-use Mail::Sendmail;
+use C4::Mail;
+use HTML::Entities;
 use MIME::QuotedPrint;
 use MIME::Base64;
 use C4::Biblio;
@@ -30,6 +31,7 @@ use C4::Auth;
 use C4::Output;
 use C4::Biblio;
 use C4::Members;
+
 
 my $query = new CGI;
 
@@ -50,7 +52,7 @@ my $email_sender = $query->param('email_sender');
 my $dbh          = C4::Context->dbh;
 
 if ( $email_add ) {
-    my $email_from = C4::Context->preference('KohaAdminEmailAddress');
+    my $email_from = C4::Context->preference('MailAccount');
     my $comment    = $query->param('comment');
     my %mail = (
         To   => $email_add,
@@ -132,7 +134,7 @@ if ( $email_add ) {
         $email_file = $1;
     }
 
-    if ( $template_res =~ /<MESSAGE>\n(.*)\n<END_MESSAGE>/s ) { $body = encode_qp($1); }
+    if ( $template_res =~ /<MESSAGE>\n(.*)\n<END_MESSAGE>/s ) { $body = $1 }
 
     my $boundary = "====" . time() . "====";
 
@@ -145,33 +147,33 @@ if ( $email_add ) {
     #     # Writing mail
     #     $mail{body} =
     $mail{'content-type'} = "multipart/mixed; boundary=\"$boundary\"";
-    my $isofile = encode_base64(encode("UTF-8", $iso2709));
+    #my $isofile = encode_base64(encode("UTF-8", $iso2709));
     $boundary = '--' . $boundary;
+    
+    my @files;
+   
+	my $fileName = time().".mrc";
+	local* fh1;
+	open fh1, '>/tmp/'.$fileName;
+	print fh1 $iso2709;
+	close fh1;
+	push (@files, "/tmp/".$fileName);
+    
     $mail{body} = <<END_OF_BODY;
-$boundary
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-
 $email_header
 $body
-$boundary
-Content-Type: application/octet-stream; name="basket.iso2709"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="basket.iso2709"
-
-$isofile
-$boundary--
 END_OF_BODY
 
     # Sending mail
-    if ( sendmail %mail ) {
+    my $res = SendEmail ($mail{To}, $mail{subject}, $mail{body}, @files);
+    
+    if ( $res ) {
         # do something if it works....
         $template->param( SENT      => "1" );
     }
     else {
         # do something if it doesnt work....
-        warn "Error sending mail: $Mail::Sendmail::error \n";
-        $template->param( error => 1 );
+        $template->param( error => 1);
     }
     $template->param( email_add => $email_add );
     output_html_with_http_headers $query, $cookie, $template->output;

@@ -85,10 +85,10 @@ $tabsysprefs{OpacMaintenance}       = "Admin";
 $tabsysprefs{FrameworksLoaded}      = "Admin";
 $tabsysprefs{libraryAddress}        = "Admin";
 $tabsysprefs{delimiter}             = "Admin";
+$tabsysprefs{KohaAdminEmailAddress}	= "Admin";
 $tabsysprefs{IndependantBranches}   = "Admin";
 $tabsysprefs{insecure}              = "Admin";
 $tabsysprefs{KohaAdmin}             = "Admin";
-$tabsysprefs{KohaAdminEmailAddress} = "Admin";
 $tabsysprefs{MIME}                  = "Admin";
 $tabsysprefs{timeout}               = "Admin";
 $tabsysprefs{Intranet_includes}     = "Admin";
@@ -384,6 +384,16 @@ $tabsysprefs{'OAI-PMH:archiveID'} = "OAI-PMH";
 $tabsysprefs{'OAI-PMH:MaxCount'}  = "OAI-PMH";
 $tabsysprefs{'OAI-PMH:Set'}       = "OAI-PMH";
 $tabsysprefs{'OAI-PMH:Subset'}    = "OAI-PMH";
+
+# Mail variables
+$tabsysprefs{MailAccount} 			= "Mail";
+$tabsysprefs{MailAuthProtocol}		= "Mail";
+$tabsysprefs{MailMessageCharset}	= "Mail";
+$tabsysprefs{MailMessageEncoding}	= "Mail";
+$tabsysprefs{MailPassword}			= "Mail";
+$tabsysprefs{MailSmtp}				= "Mail";
+$tabsysprefs{MailUser}				= "Mail";
+
 
 # ILS-DI variables
 $tabsysprefs{'ILS-DI'} = "ILS-DI";

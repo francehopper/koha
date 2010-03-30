@@ -35,6 +35,19 @@ use POSIX qw/strftime/;
 # use utf8;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $debug $ldap $cas $caslogout);
 
+my $REAL_REMOTE_ADDR = $ENV{'HTTP_X_FORWARDED_FOR'} || $ENV{'REMOTE_ADDR'};
+
+# CGI::Session from CPAN has to be changed¡! (/usr/share/perl5/CGI/Session.pm)
+# This line:
+# _SESSION_REMOTE_ADDR => $ENV{REMOTE_ADDR} || "",
+# by this one:
+# _SESSION_REMOTE_ADDR => $ENV{HTTP_X_FORWARDED_FOR} || $ENV{REMOTE_ADDR} || "",
+# 
+# and this line:
+# $dataref->{_SESSION_REMOTE_ADDR} = $ENV{REMOTE_ADDR} || "";
+# by this one:
+# $dataref->{_SESSION_REMOTE_ADDR} = $ENV{HTTP_X_FORWARDED_FOR} || $ENV{REMOTE_ADDR} || "";
+
 BEGIN {
     $VERSION = 3.02;        # set version for version checking
     $debug = $ENV{DEBUG};
@@ -676,10 +689,10 @@ sub checkauth {
             $userid    = undef;
             $sessionID = undef;
         }
-        elsif ( $ip ne $ENV{'REMOTE_ADDR'} ) {
+        elsif ( $ip ne $REAL_REMOTE_ADDR ) {
             # Different ip than originally logged in from
             $info{'oldip'}        = $ip;
-            $info{'newip'}        = $ENV{'REMOTE_ADDR'};
+            $info{'newip'}        = $REAL_REMOTE_ADDR;
             $info{'different_ip'} = 1;
             $session->delete();
             C4::Context->_unset_userenv($sessionID);
@@ -719,7 +732,7 @@ sub checkauth {
 		    ( $return, $cardnumber ) = checkpw( $dbh, $userid, $password, $query );
 		}
 		if ($return) {
-            	_session_log(sprintf "%20s from %16s logged in  at %30s.\n", $userid,$ENV{'REMOTE_ADDR'},localtime);
+            	_session_log(sprintf "%20s from %16s logged in  at %30s.\n", $userid,$REAL_REMOTE_ADDR,localtime);
             	if ( $flags = haspermission(  $userid, $flagsrequired ) ) {
 					$loggedin = 1;
             	}
@@ -766,7 +779,7 @@ sub checkauth {
 # launch a sequence to check if we have a ip for the branch, i
 # if we have one we replace the branchcode of the userenv by the branch bound in the ip.
 
-					my $ip       = $ENV{'REMOTE_ADDR'};
+					my $ip       = $REAL_REMOTE_ADDR;
 					# if they specify at login, use that
 					if ($query->param('branch')) {
 						$branchcode  = $query->param('branch');
@@ -1063,7 +1076,7 @@ sub check_api_auth {
                 $userid    = undef;
                 $sessionID = undef;
                 return ("expired", undef, undef);
-            } elsif ( $ip ne $ENV{'REMOTE_ADDR'} ) {
+            } elsif ( $ip ne $REAL_REMOTE_ADDR ) {
                 # IP address changed
                 $session->delete();
                 C4::Context->_unset_userenv($sessionID);
@@ -1147,7 +1160,7 @@ sub check_api_auth {
                     }
                 }
 
-                my $ip       = $ENV{'REMOTE_ADDR'};
+                my $ip       = $REAL_REMOTE_ADDR;
                 # if they specify at login, use that
                 if ($query->param('branch')) {
                     $branchcode  = $query->param('branch');
@@ -1289,7 +1302,7 @@ sub check_cookie_auth {
             $userid    = undef;
             $sessionID = undef;
             return ("expired", undef);
-        } elsif ( $ip ne $ENV{'REMOTE_ADDR'} ) {
+        } elsif ( $ip ne $REAL_REMOTE_ADDR ) {
             # IP address changed
             $session->delete();
             C4::Context->_unset_userenv($sessionID);

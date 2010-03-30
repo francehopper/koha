@@ -2,6 +2,25 @@
 <title>Koha &rsaquo; Tools &rsaquo; Notices<!-- TMPL_IF NAME="add_form" --><!-- TMPL_IF name="modify" --> &rsaquo; Modify notice<!-- TMPL_ELSE --> &rsaquo; Add notice<!-- /TMPL_IF --><!-- /TMPL_IF --><!-- TMPL_IF NAME="add_validate" --> &rsaquo; Notice added<!-- /TMPL_IF --><!-- TMPL_IF NAME="delete_confirm" --> &rsaquo; Confirm Deletion<!-- /TMPL_IF --></title>
 <!-- TMPL_INCLUDE NAME="doc-head-close.inc" -->
 <script type="text/javascript" src="<!-- TMPL_VAR name="themelang" -->/lib/jquery/plugins/jquery.tablesorter.min.js"></script>
+	<!-- tinyMCE -->
+	<script language="javascript" type="text/javascript" src="<!-- TMPL_VAR name="themelang" -->/js/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
+	<script language="javascript" type="text/javascript">
+		// Notice: The simple theme does not use all options some of them are limited to the advanced theme
+		tinyMCE.init({
+			mode : "exact",
+			language: "en",
+			theme : "advanced",
+			skin : "o2k7",
+			elements: "content",
+			theme_advanced_toolbar_location : "top",
+			theme_advanced_toolbar_align : "left",
+			theme_advanced_path_location : "bottom",
+			theme_advanced_buttons3 : "",
+			theme_advanced_buttons2_add_before : "hr,removeformat,sub,sup",
+			theme_advanced_disable : "code,help,image,styleselect,visualaid,charmap"
+		});
+	</script>
+	<!-- /tinyMCE -->
 	<script type="text/javascript">
 	//<![CDATA[
 $(document).ready(function() {
@@ -64,40 +83,29 @@ $(document).ready(function() {
 			}
 		}
 		// GPL code coming from PhpMyAdmin
-		function insertValueQuery() {
-			var myQuery = document.Aform.content;
-			var myListBox = document.Aform.SQLfieldname;
-		
-			if(myListBox.options.length > 0) {
-				var chaineAj = "";
-				var NbSelect = 0;
-				for(var i=0; i<myListBox.options.length; i++) {
-					if (myListBox.options[i].selected){
-						NbSelect++;
-						if (NbSelect > 1)
-							chaineAj += ", ";
-						chaineAj += myListBox.options[i].value;
+			function insertValueQuery(){
+				var myQuery = document.Aform.content;
+				var myListBox = document.Aform.SQLfieldname;
+				
+				if (myListBox.options.length > 0) {
+					var chaineAj = "";
+					var NbSelect = 0;
+					for (var i = 0; i < myListBox.options.length; i++) {
+						if (myListBox.options[i].selected) {
+							NbSelect++;
+							if (NbSelect > 1) 
+								chaineAj += ", ";
+							chaineAj += myListBox.options[i].value;
+						}
+					}
+					
+					if (chaineAj != ''){
+						chaineAj = '['+chaineAj+']';
+						tinyMCE.execInstanceCommand('content','mceInsertContent',false,chaineAj);
+						return false;
 					}
 				}
-		
-				//IE support
-				if (document.selection) {
-					myQuery.focus();
-					sel = document.selection.createRange();
-					sel.text = chaineAj;
-					document.Aform.insert.focus();
-				}
-				//MOZILLA/NETSCAPE support
-				else if (document.Aform.content.selectionStart || document.Aform.content.selectionStart == "0") {
-					var startPos = document.Aform.content.selectionStart;
-					var endPos = document.Aform.content.selectionEnd;
-					var chaineSql = document.Aform.content.value;
-					myQuery.value = chaineSql.substring(0, startPos) +'<<'+ chaineAj+'>>' + chaineSql.substring(endPos, chaineSql.length);
-				} else {
-					myQuery.value += chaineAj;
-				}
 			}
-		}
 	<!-- /TMPL_IF -->
 		//]]>
 		</script>
