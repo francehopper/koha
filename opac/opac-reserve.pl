@@ -239,6 +239,13 @@ if ( $borr->{gonenoaddress} && ($borr->{gonenoaddress} eq 1) ) {
                      GNA     => 1
                     );
 }
+#FineDays.
+my ($borrower_datedue,$allfile)= GetMemberAccountRecordsFinesDays($borr);
+if ( $borrower_datedue ) {
+       $template->param( message => 1 );
+       $noreserves = 1;
+       $template->param( finedays => $borrower_datedue );
+}
 if ( $borr->{lost} && ($borr->{lost} eq 1) ) {
     $noreserves = 1;
     $template->param(

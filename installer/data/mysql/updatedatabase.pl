@@ -3548,6 +3548,14 @@ if (C4::Context->preference('Version') < TransformToNum($DBversion)){
     SetVersion ($DBversion);
 }
 
+$DBversion = '3.01.00.128';
+if (C4::Context->preference('Version') < TransformToNum($DBversion)){
+    $dbh->do("INSERT INTO `systempreferences` (`variable` ,`value` ,`options` ,`explanation` ,`type`)VALUES ('useFineDaysMode', 'accumulate', 'accumulate|higher', 'Method of recording the penalties for days', 'Choice');");
+    print "Upgrade to $DBversion done (Penality per day module)\n";
+    SetVersion ($DBversion);
+}
+
+
 =item DropAllForeignKeys($table)
 
   Drop all foreign keys of the table $table

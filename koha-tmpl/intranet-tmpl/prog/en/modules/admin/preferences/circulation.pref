@@ -278,6 +278,14 @@ Circulation:
                   test: Calculate (but only for mailing to the admin)
                   production: Calculate and charge
             - fines (when <code>misc/cronjobs/fines.pl</code> is being run).
+        -
+            - The method for registration of sanctions is to 
+            - pref: useFineDaysMode
+              type: choice
+              choices:
+                  higher: higher
+                  accumulate: accumulate
+            -        
     Self Checkout:
         -
             - pref: ShowPatronImageInWebBasedSelfCheck

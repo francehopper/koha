@@ -27,6 +27,7 @@ $(document).ready(function(){
 <ul class="ui-tabs-nav">
 	<li><a href="/cgi-bin/koha/members/boraccount.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->">Account</a></li>
 	<li><a href="/cgi-bin/koha/members/pay.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->" >Pay fines</a></li>
+	<li><a href="/cgi-bin/koha/members/finedays.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->" >Fine Days</a></li>
 	<li class="ui-tabs-selected"><a href="/cgi-bin/koha/members/maninvoice.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->" >Create Manual Invoice</a></li>
 	<li><a href="/cgi-bin/koha/members/mancredit.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->" >Create Manual Credit</a></li>
 </ul>
@@ -49,6 +50,7 @@ type_fees['F'] = '';
 type_fees['A'] = '';
 type_fees['N'] = '';
 type_fees['M'] = '';
+type_fees['FD']= '';
 <!-- TMPL_LOOP NAME="invoice_types_loop" -->
 type_fees['<!-- TMPL_VAR NAME="authorised_value" -->'] = "<!-- TMPL_VAR NAME="lib" -->";
 <!-- /TMPL_LOOP -->
@@ -57,6 +59,7 @@ type_fees['<!-- TMPL_VAR NAME="authorised_value" -->'] = "<!-- TMPL_VAR NAME="li
         <select name="type" id="type" onchange="this.form.desc.value=this.options[this.selectedIndex].value; this.form.amount.value=type_fees[this.options[this.selectedIndex].value];">
           <option value="L">Lost Item</option>
           <option value="F">Fine</option>
+          <option value="FD">Fine Days</option>
           <option value="A">Account Management Fee</option>
           <option value="N">New Card</option>
           <option value="M">Sundry</option>

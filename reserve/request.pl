@@ -161,6 +161,13 @@ if ($cardnumber) {
 		$messages = 1;
         $diffbranch = 1;
     }
+    
+    #FineDays.
+    my ($borrower_datedue,$allfile)= GetMemberAccountRecordsFinesDays($borrowerinfo);
+    if ( $borrower_datedue ) {
+        $warnings = 1;        
+        $template->param( finedays => $borrower_datedue );
+    }
 
     $template->param(
                 borrowernumber => $borrowerinfo->{'borrowernumber'},

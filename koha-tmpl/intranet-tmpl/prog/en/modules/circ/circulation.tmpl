@@ -521,7 +521,16 @@ No patron matched <span class="ex"><!-- TMPL_VAR name="message" --></span>
                 <!-- /TMPL_IF -->
             Make <a href="/cgi-bin/koha/members/pay.pl?borrowernumber=<!-- TMPL_VAR name="borrowernumber" -->">Payment</a></li>
 			<!-- /TMPL_IF -->
-
+			
+			<!-- TMPL_IF NAME = "finedays" -->
+				<!-- TMPL_IF NAME="finedays_is_blocker" -->
+                	<li class="blocker">
+                <!-- TMPL_ELSE -->
+                	<li>
+            	<!-- /TMPL_IF -->
+            	<span class="circ-hlt">Fines:</span> Patron has <a href="/cgi-bin/koha/members/boraccount.pl?borrowernumber=<!-- TMPL_VAR name="borrowernumber" -->">outstanding fines</a>. The loans will get blocked until  <strong><!-- TMPL_VAR NAME="finedays_datadue" --></strong>.</li>
+            <!-- /TMPL_IF -->
+            
         	<!-- TMPL_IF NAME="credits" -->
 			<li>
                 <span class="circ-hlt">Credits:</span> Patron has a credit<!-- TMPL_IF NAME="creditsamount" --> of <!-- TMPL_VAR name="creditsamount" --><!-- /TMPL_IF -->

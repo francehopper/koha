@@ -183,6 +183,10 @@
               <div class="dialog alert">Usually the reason for freezing an account is old overdues or damage fees.   If <a href="/cgi-bin/koha/opac-user.pl">your account page</a> shows your account to be clear, please consult a librarian.
               </div>
             <!-- /TMPL_IF -->
+            <!-- TMPL_IF NAME="finedays" -->
+				<div class="error"><strong>Sorry</strong>, you cannot place holds because you have penalties <a href="/cgi-bin/koha/opac-account.pl">fines</a> days.</div>
+				<div class="dialog alert">You can not take this action to date <!-- TMPL_VAR NAME="finedays" -->.</div>
+			<!-- /TMPL_IF -->
             <!-- TMPL_IF NAME="too_much_oweing" -->
               <div class="dialog alert">
                 Sorry, you cannot place holds because you owe <!-- TMPL_VAR NAME="too_much_oweing" -->.

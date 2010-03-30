@@ -207,6 +207,9 @@ function checkMultiHold() {
         <!-- TMPL_IF NAME="alreadyreserved" -->
           <li><a href="/cgi-bin/koha/members/moremember.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->"><!-- TMPL_VAR NAME="borrowerfirstname" --> <!-- TMPL_VAR NAME="borrowersurname" --></a> <strong>already has a hold</strong> on this item </li>
         <!-- /TMPL_IF -->
+        <!-- TMPL_IF NAME="finedays" -->
+			<li><strong>Sorry</strong>, can not be reserved because it has  <a href="/cgi-bin/koha/members/boraccount.pl?borrowernumber=<!-- TMPL_VAR NAME="borrowernumber" -->">penalties</a>.</li>
+        <!-- /TMPL_IF -->
         <!-- TMPL_IF NAME="none_available" -->
           <li> <strong>No copies are available</strong> to be placed on hold</li>
         <!-- /TMPL_IF -->

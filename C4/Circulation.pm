@@ -729,6 +729,12 @@ sub CanBookBeIssued {
             $needsconfirmation{DEBT} = sprintf( "%.2f", $amount );
         }
     }
+    
+    my ($borrower_datedue,$allfile)= &C4::Members::GetMemberAccountRecordsFinesDays($borrower);   
+    if($borrower_datedue){
+    ## blocked because of overdue return
+    	$issuingimpossible{USERBLOCKEDFINEDAYSPENALIZED} = $borrower_datedue;
+    }
 
     my ($blocktype, $count) = C4::Members::IsMemberBlocked($borrower->{'borrowernumber'});
     if($blocktype == -1){
@@ -739,7 +745,7 @@ sub CanBookBeIssued {
         $issuingimpossible{USERBLOCKEDOVERDUE} = $count;
     }
 
-#
+	#
     # JB34 CHECKS IF BORROWERS DONT HAVE ISSUE TOO MANY BOOKS
     #
 	my $toomany = TooMany( $borrower, $item->{biblionumber}, $item );
@@ -1485,6 +1491,8 @@ sub AddReturn {
         if ($borrowernumber) {
             MarkIssueReturned($borrowernumber, $item->{'itemnumber'}, $circControlBranch);
             $messages->{'WasReturned'} = 1;    # FIXME is the "= 1" right?  This could be the borrower hash.
+            #Finedays
+			$messages->{'BorrowerFineDays'} = &C4::Members::fineDaysToReturn($borrower,$issue,$exemptfine);
         }
 
         ModItem({ onloan => undef }, $issue->{'biblionumber'}, $item->{'itemnumber'});

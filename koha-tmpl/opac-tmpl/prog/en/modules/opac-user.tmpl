@@ -121,6 +121,7 @@ $.tablesorter.addParser({
             <!-- TMPL_IF NAME="overdues_count" --><li><a href="/cgi-bin/koha/opac-user.pl#opac-user-overdues">Overdue</a></li><!-- /TMPL_IF -->
 <!-- TMPL_IF NAME="OPACFinesTab" -->
             <!-- TMPL_IF NAME="amountoverfive" --><li><a href="/cgi-bin/koha/opac-user.pl#opac-user-fines">Fines</a></li><!-- /TMPL_IF -->
+            <!-- TMPL_IF NAME="finedays" --><li><a href="/cgi-bin/koha/opac-user.pl#opac-user-fines">Fines</a></li><!-- /TMPL_IF -->
             <!-- TMPL_IF NAME="amountoverzero" --><li><a href="/cgi-bin/koha/opac-user.pl#opac-user-fines">Fines</a></li><!-- /TMPL_IF -->
             <!-- TMPL_IF NAME="amountlessthanzero" --><li><a href="/cgi-bin/koha/opac-user.pl#opac-user-fines">Credits</a></li><!-- /TMPL_IF -->
 <!-- /TMPL_IF -->
@@ -140,6 +141,17 @@ $.tablesorter.addParser({
                 </tr>
             </table></div>
         <!-- /TMPL_IF -->
+
+		<!-- TMPL_IF NAME="finedays" -->
+			<div id="opac-user-fines"> 			
+				<table>
+					<tr><th >Fines Days</th></tr>
+					<tr>
+						<td>You are currently penalized until the date <a href="/cgi-bin/koha/opac-account.pl"><!-- TMPL_VAR NAME="datedueFines" --></a></td>
+					</tr>
+				</table>
+			</div>
+		<!-- /TMPL_IF --> 
 
         <!-- TMPL_IF NAME="amountoverzero" -->
            <div id="opac-user-fines"> <h3>Fines and Charges</h3>

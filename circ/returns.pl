@@ -411,6 +411,8 @@ foreach my $code ( keys %$messages ) {
     }
     elsif ( $code eq 'Wrongbranch' ) {
     }
+    elsif ( $code eq 'BorrowerFineDays' ) {
+    }
 
     else {
         die "Unknown error code $code";    # note we need all the (empty) elsif's above, or we die.
@@ -531,6 +533,10 @@ foreach ( sort { $a <=> $b } keys %returneditems ) {
         $ri{ccode}            = $biblio->{'ccode'};
         $ri{itemnumber}       = $biblio->{'itemnumber'};
         $ri{barcode}          = $bar_code;
+        if ( $messages->{'BorrowerFineDays'} ){
+        	$ri{finedays}	  =$messages->{'BorrowerFineDays'};
+        }
+        
     }
     else {
         last;

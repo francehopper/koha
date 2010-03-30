@@ -30,6 +30,7 @@ use C4::Accounts;
 use C4::Biblio;
 use C4::SQLHelper qw(InsertInTable UpdateInTable SearchInTable);
 use C4::Members::Attributes qw(SearchIdMatchingAttribute);
+use Date::Calc qw(Add_Delta_Days);
 
 our ($VERSION,@ISA,@EXPORT,@EXPORT_OK,$debug);
 
@@ -44,6 +45,7 @@ BEGIN {
 		&SearchMember 
 		&GetMemberDetails
 		&GetMember
+		&GetMemberAccountRecordsFinesDays
 
 		&GetGuarantees 
 
@@ -69,7 +71,8 @@ BEGIN {
 		&IsMemberBlocked
 		&GetMemberAccountRecords
 		&GetBorNotifyAcctRecord
-
+		&GetBorNotifyAcctRecordFineDays
+		
 		&GetborCatFromCatType 
 		&GetBorrowercategory
     &GetBorrowercategoryList
@@ -84,6 +87,8 @@ BEGIN {
 		&DeleteMessage
 		&GetMessages
 		&GetMessagesCount
+		
+		&fineDaysToReturn
 	);
 
 	#Modify data
@@ -457,6 +462,16 @@ sub patronflags {
         $flaginfo{'amount'}  = sprintf "%.02f", $amount;
         $flags{'CREDITS'} = \%flaginfo;
     }
+    my ($borrower_datedue,$allfile)=GetMemberAccountRecordsFinesDays($patroninformation);
+
+    if ( $borrower_datedue ) {
+       my %flaginfo;
+       $flaginfo{'noissues'} = 1;
+       $flaginfo{'datadue'} = $borrower_datedue;
+       $flaginfo{'message'}  = 'Borrower has penalties to date '.$borrower_datedue;
+       $flags{'FINEDAYS'} =\%flaginfo;    
+    }
+    
     if (   $patroninformation->{'gonenoaddress'}
         && $patroninformation->{'gonenoaddress'} == 1 )
     {
@@ -1126,7 +1141,7 @@ sub GetMemberAccountRecords {
     my $strsth      = qq(
                         SELECT * 
                         FROM accountlines 
-                        WHERE borrowernumber=?);
+                        WHERE borrowernumber=? and (accounttype NOT like 'FD' AND  accounttype NOT like 'FDF') );
     my @bind = ($borrowernumber);
     if ($date && $date ne ''){
             $strsth.=" AND date < ? ";
@@ -1174,6 +1189,7 @@ sub GetBorNotifyAcctRecord {
                 FROM accountlines 
                 WHERE borrowernumber=? 
                     AND notify_id=? 
+                    AND (accounttype NOT like 'FD' AND  accounttype NOT like 'FDF')
                     AND amountoutstanding != '0' 
                 ORDER BY notify_id,accounttype
                 ");
@@ -1187,6 +1203,44 @@ sub GetBorNotifyAcctRecord {
         $total += int(100 * $data->{'amountoutstanding'});
     }
     $total /= 100;
+    return ( $total, \@acctlines, $numlines );
+}
+
+=head2 GetBorNotifyAcctRecordFineDays
+
+  ($count, $acctlines, $total) = &GetBorNotifyAcctRecordFineDays($params,$notifyid);
+
+=cut
+sub GetBorNotifyAcctRecordFineDays {
+	
+    my ( $borrowernumber, $notifyid ) = @_;
+    my $dbh = C4::Context->dbh;
+    my @acctlines;
+    my $numlines = 0;
+    
+    my $sth = $dbh->prepare("SELECT * 
+                FROM accountlines 
+                WHERE borrowernumber=? 
+                    AND (accounttype  like 'FD' OR  accounttype  like 'FDF')
+                    AND notify_id=? 
+                ORDER BY notify_id,accounttype
+                ");
+
+#                    AND (accounttype='FU' OR accounttype='N' OR accounttype='M'OR accounttype='A'OR accounttype='F'OR accounttype='L' OR accounttype='IP' OR accounttype='CH' OR accounttype='RE' OR accounttype='RL')
+
+
+    $sth->execute( $borrowernumber, $notifyid );
+    my $total = 0;
+
+    while ( my $data = $sth->fetchrow_hashref ) {
+        $acctlines[$numlines] = $data;
+        $numlines++;
+        $total += $data->{'amountoutstanding'};
+
+    }
+
+    $sth->finish;
+    
     return ( $total, \@acctlines, $numlines );
 }
 
@@ -2187,6 +2241,147 @@ sub DeleteMessage {
     my $sth = $dbh->prepare($query);
     $sth->execute( $message_id );
 
+}
+
+=item GetMemberAccountRecordsFinesDays
+
+    ($days_waiting, $datedue) = calcDateFineFinish($branch,$startdate,$finelength);
+
+Returns the number of days of criminalization and penalties array of user days
+
+=cut
+
+sub GetMemberAccountRecordsFinesDays{
+
+	my $member = shift;
+    my @notify = NumberNotifyIdFineDays($member->{borrowernumber});
+    my @allfile;
+    my $total_days=0;
+    my $numberofnotify = scalar(@notify);
+    
+    for ( my $j = 0 ; $j < scalar(@notify) ; $j++ ) {
+
+        my @loop_pay;
+        my $fines=0;
+
+        my ( $total , $accts, $numaccts) = GetBorNotifyAcctRecordFineDays( $member->{borrowernumber}, $notify[$j] );
+		#warn "total ".$total."Lineas".$numaccts;
+        for ( my $i = 0 ; $i < $numaccts ; $i++ ) {
+
+            my %line;
+
+            ($accts->[$i]{'amountoutstanding'}, $accts->[$i]{'datedue'}) = calcDateFineDay($member->{branchcode},$accts->[$i]{'date'},$accts->[$i]{'amount'});
+			
+            if ( $accts->[$i]{'amountoutstanding'} > 0 ) {
+                $accts->[$i]{'amount'}            += 0;
+                $accts->[$i]{'amountoutstanding'} += 0;
+                $line{i}           = $j . "" . $i;
+                $line{itemnumber}  = $accts->[$i]{'itemnumber'};
+                $line{accounttype} = $accts->[$i]{'accounttype'};
+                $line{amount}      = sprintf( "%d", $accts->[$i]{'amount'} );                
+                $line{borrowernumber} = $member->{borrowernumber};
+                $line{accountno}      = $accts->[$i]{'accountno'};
+                $line{description}    = $accts->[$i]{'description'};
+                $line{date}           = C4::Dates::format_date($accts->[$i]{'date'});
+                $line{title}          = $accts->[$i]{'title'};
+                $line{notify_id}      = $accts->[$i]{'notify_id'};
+                $line{notify_level}   = $accts->[$i]{'notify_level'};
+                
+                if ( $line{accounttype} eq 'FD'){
+                	
+                	if($accts->[$i]{'amountoutstanding'} > 0){
+	
+                    	$line{net_balance} = 1;
+
+                        if(C4::Context->preference('useFineDaysMode') eq 'accumulate'){
+                        	
+                        	if($fines eq 0){
+                            	$line{amountoutstanding} =sprintf( "%d", $accts->[$i]{'amountoutstanding'} );
+                            }else{
+                            	$line{amountoutstanding} =sprintf( "%d", $accts->[$i]{'amount'} );
+                            }
+
+                            $fines=1;
+                            $total_days+=$accts->[$i]{'amountoutstanding'};                   
+                         
+                        }else{
+                        	if($total_days < $accts->[$i]{'amountoutstanding'}){
+                            	$total_days=$accts->[$i]{'amountoutstanding'};
+                            }
+                                               
+                            $line{amountoutstanding} =sprintf( "%d", $accts->[$i]{'amountoutstanding'} );
+
+                        }
+                                       
+                     }
+                }
+
+                push( @loop_pay, \%line );
+            }
+        }
+      
+        push @allfile,
+          {
+            'loop_pay' => \@loop_pay,
+            'notify'   => $notify[$j],
+            'total'    =>  sprintf( "%d",$total_days),           
+          };
+    }
+
+    my $data;
+    
+    if($total_days >0 ){
+    	if(C4::Context->preference('finesCalendar') eq 'ignoreCalendar') {  # ignoring calendar
+    		my $today = C4::Dates->new();
+    		my @arr_startdate = split('-',$today->output('iso'));               
+           	my ($datedue_year, $datedue_month,$datedue_day)= Add_Delta_Days(@arr_startdate, $total_days);   
+           	my $borrower_datedue = C4::Dates->new($datedue_year."-".$datedue_month."-".$datedue_day,'iso');
+           	$data=C4::Dates::format_date($borrower_datedue->output('iso'));
+           	
+    	}else{
+    		
+           my $today= C4::Dates->new();
+           my $calendar = C4::Calendar->new(  branchcode => $member->{branchcode} );
+           my $borrower_datedue = $calendar->addDate($today, $total_days);
+           $data=C4::Dates::format_date($borrower_datedue->output('iso'));
+    	}
+    }
+       return ($data,\@allfile);
+}
+
+
+
+=item fineDaysToReturn
+
+     fineDaysToReturn( $borrower, $item,$exemptfine);
+Following the return of an item, check whether the user should be penalized in days
+
+=cut
+
+sub fineDaysToReturn{
+
+       my ( $borrower, $item,$exemptfine) = @_;       
+
+       my $today = C4::Dates->new();
+
+       my $calendar = C4::Calendar->new(  branchcode => $borrower->{branchcode} );
+       my $datedue = C4::Dates->new($item->{date_due},'iso');
+       my $days = $calendar->daysBetween( $datedue,$today);
+       
+       my $irule=&C4::Circulation::GetIssuingRule( $borrower->{categorycode}, $item->{itype}, $borrower->{branchcode});
+
+       if($irule->{finedays}){
+               my $num_days= $days*$irule->{finedays};
+
+               if($exemptfine){
+                       manualinvoice( $borrower->{borrowernumber}, $item->{itemnumber}, 'Forget Last Return', 'FDF', $num_days);
+               }else{
+                       manualinvoice( $borrower->{borrowernumber}, $item->{itemnumber}, 'Last Return', 'FD', $num_days);
+                       return $num_days;
+               }               
+       }
+       
+       return 0;
 }
 
 END { }    # module clean-up code here (global destructor)

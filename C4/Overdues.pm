@@ -44,6 +44,7 @@ BEGIN {
         &CheckExistantNotifyid
         &GetNextIdNotify
         &GetNotifyId
+        &NumberNotifyIdFineDays
         &NumberNotifyId
         &AmountNotify
         &UpdateAccountLines
@@ -727,7 +728,10 @@ sub NumberNotifyId{
     my $dbh = C4::Context->dbh;
     my $query=qq|    SELECT distinct(notify_id)
             FROM accountlines
-            WHERE borrowernumber=?|;
+            WHERE borrowernumber=?
+            and accounttype  not like 'FD' 
+            and accounttype  not like 'FDF' |;
+            
     my @notify;
     my $sth = $dbh->prepare($query);
     $sth->execute($borrowernumber);
@@ -736,6 +740,41 @@ sub NumberNotifyId{
     }
     return (@notify);
 }
+
+=head2 NumberNotifyIdFineDays
+
+(@notify) = &NumberNotifyIdFineDays($borrowernumber);
+
+Returns amount of fine days for all file per borrowers
+
+C<@notify> array contains all file per borrowers
+
+C<$notify_id> contains the file number for the borrower number nad item number
+
+=cut
+
+sub NumberNotifyIdFineDays{
+
+    my ($borrowernumber)=@_;
+    
+    my $dbh = C4::Context->dbh;
+    my $query=qq|    SELECT distinct(notify_id)
+            FROM accountlines
+            WHERE borrowernumber=?
+            and (accounttype  like 'FD' OR  accounttype  like 'FDF') |;
+    my @notify;
+    my $sth=$dbh->prepare($query);
+
+    $sth->execute($borrowernumber);
+
+    while ( my ($numberofnotify)=$sth->fetchrow){
+    	push (@notify,$numberofnotify);
+    }
+    $sth->finish;
+
+    return (@notify);
+}
+
 
 =head2 AmountNotify
 

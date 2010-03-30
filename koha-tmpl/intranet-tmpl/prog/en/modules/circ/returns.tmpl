@@ -267,6 +267,14 @@ function Dopop(link) {
         </form>
 	</div>
     <!-- /TMPL_IF -->
+    
+    <!--  FineDays  -->
+    <!-- TMPL_IF Name="BorrowerFineDays" -->
+        <div class="dialog message">
+			<h4><strong>The patron was penalized for </strong> <!-- TMPL_VAR Name="BorrowerFineDays_num" --> day(s)</h4>
+		</div>
+	<!-- /TMPL_IF -->
+	
 <!-- TMPL_ELSE -->
 
 <!-- TMPL_IF NAME="errmsgloop" -->

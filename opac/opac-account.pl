@@ -62,6 +62,19 @@ for ( my $i = 0 ; $i < $numaccts ; $i++ ) {
     }
 }
 
+#FineDays.
+my ($borrower_datedue,$allfile)= GetMemberAccountRecordsFinesDays($borr);
+
+if ( $borrower_datedue  ) {
+    $borr->{'finedays'} = 1;
+    $borr->{'datedueFines'} = $borrower_datedue;
+}
+
+$template->param(
+	allfile        => $allfile,
+	borrower_datedue => $borrower_datedue,
+);
+
 # add the row parity
 my $num = 0;
 foreach my $row (@$accts) {

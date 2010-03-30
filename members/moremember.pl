@@ -208,6 +208,10 @@ $data->{'branchname'} = $branchdetail->{branchname};
 
 
 my ( $total, $accts, $numaccts) = GetMemberAccountRecords( $borrowernumber );
+
+#FineDays.
+my ($borrower_datedue,$allfile)= GetMemberAccountRecordsFinesDays($data);
+
 my $lib1 = &GetSortDetails( "Bsort1", $data->{'sort1'} );
 my $lib2 = &GetSortDetails( "Bsort2", $data->{'sort2'} );
 $template->param( lib1 => $lib1 ) if ($lib1);
@@ -424,6 +428,7 @@ $template->param(
     "dateformat_" . (C4::Context->preference("dateformat") || '') => 1,
     samebranch     => $samebranch,
     quickslip		  => $quickslip,
+    datedueFines       => $borrower_datedue,
 );
 
 output_html_with_http_headers $input, $cookie, $template->output;

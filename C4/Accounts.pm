@@ -24,6 +24,7 @@ use C4::Stats;
 use C4::Members;
 use C4::Items;
 use C4::Circulation qw(MarkIssueReturned);
+use Date::Calc qw(Add_Delta_Days Date_to_Days);
 
 use vars qw($VERSION @ISA @EXPORT);
 
@@ -37,6 +38,7 @@ BEGIN {
 		&getnextacctno &reconcileaccount &getcharges &getcredits
 		&getrefunds &chargelostitem
 		&ReversePayment
+		&forgetFinedays	&calcDateFineDay
 	); # removed &fixaccounts
 }
 
@@ -348,6 +350,7 @@ should be the empty string.
 # 		'A' = Account Management fee
 # 		'M' = Sundry
 # 		'L' = Lost Item
+#		'FD'= Fine Day
 #
 
 sub manualinvoice {
@@ -381,7 +384,10 @@ sub manualinvoice {
     if ( $type eq 'M' ) {
         $desc .= " Sundry";
     }
-
+	if ( $type eq 'FD' ) {
+        $desc .="Last Return" ;
+        $amountleft= 0;
+    }
     if ( $type eq 'L' && $desc eq '' ) {
 
         $desc = " Lost Item";
@@ -394,7 +400,8 @@ sub manualinvoice {
         or ( $type eq 'F' )
         or ( $type eq 'A' )
         or ( $type eq 'N' )
-        or ( $type eq 'M' ) )
+        or ( $type eq 'M' )
+        or ( $type eq 'FD') )
     {
         $notifyid = 1;
     }
@@ -664,6 +671,69 @@ sub ReversePayment {
     $sth = $dbh->prepare('UPDATE accountlines SET amountoutstanding = 0, description = CONCAT( description, " Reversed -" ) WHERE borrowernumber = ? AND accountno = ?');
     $sth->execute( $borrowernumber, $accountno );
   }
+}
+
+=item calcDateFineDay
+    ($days_waiting, $datedue) = calcDateFineDay($branch,$startdate,$finelength);
+Computes and returns the date of completion and remaining on a penalty for days.
+=cut
+
+sub calcDateFineDay{
+	
+       my $branch = shift;
+       my $startdate = shift;
+       my $finelength =shift;
+       
+       my $startdate_ = C4::Dates->new($startdate,'iso');
+       my $today = C4::Dates->new();
+       my $datedue;
+       my $days_waiting=0;
+
+       if(C4::Context->preference('finesCalendar') eq 'ignoreCalendar') {  # ignoring calendar
+       
+               my @arr_startdate = split('-',$startdate_->output('iso'));
+               
+               my ($datedue_year, $datedue_month,$datedue_day)= Add_Delta_Days(@arr_startdate, $finelength);
+               
+                $datedue = C4::Dates->new($datedue_year."-".$datedue_month."-".$datedue_day,'iso');
+                $days_waiting = Date_to_Days(split('-',$datedue->output('iso'))) - Date_to_Days(split('-',$startdate_->output('iso')));
+
+       } else {
+               my $calendar = C4::Calendar->new(  branchcode => $branch );
+               $datedue = $calendar->addDate($startdate_, $finelength);
+               $days_waiting = $calendar->daysBetween( $today, $datedue);
+       }       
+
+       return $days_waiting, $datedue;
+}
+
+
+
+=item forgetFinedays
+Updates a penalty to the state of forgiveness.
+=cut
+
+sub forgetFinedays {
+	
+    my ( $borrowernumber, $accountnum, $itemnum, $accounttype, $amount,$user,$branch ) = @_;
+    
+    my $dbh  = C4::Context->dbh;
+    undef $itemnum unless $itemnum; # if no item is attached to fine, make sure to store it as a NULL
+
+    my $sth =
+     $dbh->prepare("Update accountlines set amountoutstanding=0 , description = 'Forget', accounttype='FDF' where accounttype='FD'  and accountno=? and borrowernumber=?"
+     );
+      
+    $sth->execute( $accountnum, $borrowernumber );
+    $sth->finish;
+
+    $sth = $dbh->prepare("select max(accountno) from accountlines");
+    $sth->execute;
+    my $account = $sth->fetchrow_hashref;
+    $sth->finish;
+    
+    $account->{'max(accountno)'}++;
+    UpdateStats( $branch, 'forget', $amount, '', '', '', $borrowernumber );
 }
 
 END { }    # module clean-up code here (global destructor)

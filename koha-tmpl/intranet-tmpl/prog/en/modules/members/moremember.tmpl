@@ -383,6 +383,9 @@ if (nodename =="barcodes[]"){
     <!-- TMPL_ELSE -->
         <p>No outstanding charges</p>
     <!-- /TMPL_IF -->
+    <!-- TMPL_IF NAME="datedueFines" -->
+		<p>You are penalized until <strong><!-- TMPL_VAR NAME="datedueFines" --></strong>.</p>
+	<!-- /TMPL_IF -->
 </div>
 
 <div id="checkedout">

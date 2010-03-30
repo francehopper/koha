@@ -558,6 +558,14 @@ foreach my $flag ( sort keys %$flags ) {
                 charges_is_blocker => 1
             );
         }
+        elsif ( $flag eq 'FINEDAYS' ) {
+            $template->param(
+                finedays    => 'true',
+                finedaysmsg => $flags->{'FINEDAYS'}->{'message'},
+                finedays_datadue=> $flags->{'FINEDAYS'}->{'datadue'},
+                finedays_is_blocker => 1,
+            );
+        }
         elsif ( $flag eq 'CREDITS' ) {
             $template->param(
                 credits    => 'true',
@@ -573,6 +581,14 @@ foreach my $flag ( sort keys %$flags ) {
                 flagged    => 1,
                 chargesmsg => $flags->{'CHARGES'}->{'message'},
                 chargesamount => $flags->{'CHARGES'}->{'amount'},
+            );
+        }
+        elsif ( $flag eq 'FINEDAYS' ) {
+            $template->param(
+                finedays    => 'true',
+                finedaysmsg => $flags->{'FINEDAYS'}->{'message'},
+                finedays_datadue=> $flags->{'FINEDAYS'}->{'datadue'},
+                finedays_is_blocker => 1,
             );
         }
         elsif ( $flag eq 'CREDITS' ) {

@@ -66,6 +66,12 @@ $borr->{'ethnicity'} = fixEthnicity( $borr->{'ethnicity'} );
 if ( $borr->{'debarred'} || $borr->{'gonenoaddress'} || $borr->{'lost'} ) {
     $borr->{'flagged'} = 1;
 }
+#FineDays.
+my ($borrower_datedue,$allfile)= GetMemberAccountRecordsFinesDays($borr);
+if ( $borrower_datedue  ) {
+    $borr->{'finedays'} = 1;
+    $borr->{'datedueFines'} = $borrower_datedue;
+}
 
 if ( $borr->{'amountoutstanding'} > 5 ) {
     $borr->{'amountoverfive'} = 1;
