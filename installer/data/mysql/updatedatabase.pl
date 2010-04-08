@@ -3552,7 +3552,16 @@ $DBversion = '3.01.00.128';
 if (C4::Context->preference('Version') < TransformToNum($DBversion)){
     $dbh->do("INSERT INTO `systempreferences` (`variable` ,`value` ,`options` ,`explanation` ,`type`)VALUES ('useFineDaysMode', 'accumulate', 'accumulate|higher', 'Method of recording the penalties for days', 'Choice');");
     print "Upgrade to $DBversion done (Fine in days module)\n";
-
+	
+	$dbh->do("INSERT INTO `systempreferences` VALUES ('MailAuthProtocol','NO-AUTH','LOGIN|PLAIN|CRAM-MD5|NTLM|NO-AUTH','Authentication protocol used by this smtp server','Choice')");
+	$dbh->do("INSERT INTO `systempreferences` VALUES ('MailAccount','account\@domain.com','','The mail account to send email (From)','free");
+	$dbh->do("INSERT INTO `systempreferences` VALUES ('MailPassword','',NULL,'Password to authenticate in this smtp server','free')");
+	$dbh->do("INSERT INTO `systempreferences` VALUES ('MailSmtp','smtp.domain.com','','Smtp to use. Use name or ip','free')");
+	$dbh->do("INSERT INTO `systempreferences` VALUES ('MailUser','','','User to authenticate in this smtp server','free')");
+	$dbh->do("INSERT INTO `systempreferences` VALUES ('MailMessageCharset','ISO-8859-1','','Charset used in the message','free')");
+	$dbh->do("INSERT INTO `systempreferences` VALUES ('MailMessageEncoding','ISO-8859-1','','Encoding used in the message','free')");
+	print "Upgrade to $DBversion done (Send html mails module)\n";
+	
     $dbh->do('CREATE INDEX budget_id ON aqorders (budget_id );');
     print "Upgrade to $DBversion done (bug 4331: index orders by budget_id)\n";
     SetVersion ($DBversion);

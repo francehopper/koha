@@ -284,13 +284,13 @@ INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES
 INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES('AutoSelfCheckPass','','Password to be used for automatic web-based self-check. Only applies if AutoSelfCheckAllowed syspref is turned on.','','free');
 INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES('soundon','0','Enable circulation sounds during checkin and checkout in the staff interface.  Not supported by all web browsers yet.','','YesNo');
 
-INSERT INTO `systempreferences` VALUES ('MailAuthProtocol','NO-AUTH','LOGIN|PLAIN|CRAM-MD5|NTLM|NO-AUTH','Protocolo de autenticación soportado por el servidor smtp','Choice');
-INSERT INTO `systempreferences` VALUES ('MailAccount','account@domain.com','','Cuenta que se está usando para autenticarse en el servidor','free');
-INSERT INTO `systempreferences` VALUES ('MailPassword','',NULL,'Contraseña para autenticarse en el servidor smtp','free');
-INSERT INTO `systempreferences` VALUES ('MailSmtp','smtp.domain.com','','Smtp que se va a usar. Emplear nombre o ip del servidor smtp','free');
-INSERT INTO `systempreferences` VALUES ('MailUser','','','Usuario para autenticarse en el servidor smtp','free');
-INSERT INTO `systempreferences` VALUES ('MailMessageCharset','ISO-8859-1','','Charset utilizado en los mensajes','free');
-INSERT INTO `systempreferences` VALUES ('MailMessageEncoding','ISO-8859-1','','Encoding utilizado en los mensajes','free');
+INSERT INTO `systempreferences` VALUES ('MailAuthProtocol','NO-AUTH','LOGIN|PLAIN|CRAM-MD5|NTLM|NO-AUTH','Authentication protocol used by this smtp server','Choice');
+INSERT INTO `systempreferences` VALUES ('MailAccount','account@domain.com','','The mail account to send email (From)','free');
+INSERT INTO `systempreferences` VALUES ('MailPassword','',NULL,'Password to authenticate in this smtp server','free');
+INSERT INTO `systempreferences` VALUES ('MailSmtp','smtp.domain.com','','Smtp to use. Use name or ip','free');
+INSERT INTO `systempreferences` VALUES ('MailUser','','','User to authenticate in this smtp server','free');
+INSERT INTO `systempreferences` VALUES ('MailMessageCharset','ISO-8859-1','','Charset used in the message','free');
+INSERT INTO `systempreferences` VALUES ('MailMessageEncoding','ISO-8859-1','','Encoding used in the message','free');
 
 INSERT INTO `systempreferences` ( `variable` , `value` , `options` , `explanation` , `type` ) VALUES ( 'PrintNoticesMaxLines', '0', '', 'If greater than 0, sets the maximum number of lines an overdue notice will print. If the number of items is greater than this number, the notice will end with a warning asking the borrower to check their online account for a full list of overdue items.', 'Integer' );
 INSERT INTO `systempreferences` (variable,value,explanation,options,type) VALUES('ILS-DI','0','Enables ILS-DI services at OPAC.','','YesNo');
