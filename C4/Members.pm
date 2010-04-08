@@ -620,13 +620,18 @@ sub IsMemberBlocked {
     my $latedocs = $sth->fetchrow_hashref->{'latedocs'};
 
     return (-1, $latedocs) if $latedocs > 0;
-
-	my $strsth=qq{
-            SELECT
-            ADDDATE(returndate, finedays * DATEDIFF(returndate,date_due) ) AS blockingdate,
-            DATEDIFF(ADDDATE(returndate, finedays * DATEDIFF(returndate,date_due)),NOW()) AS blockedcount
-            FROM old_issues
-	};
+    
+    
+    my $data = GetMember($borrowernumber);
+    my ($borrower_datedue,$allfile)= GetMemberAccountRecordsFinesDays($data);
+    return (1, $allfile->{'total'}) if $allfile->{'total'} > 0;
+=cut
+	#my $strsth=qq{
+    #        SELECT
+    #        ADDDATE(returndate, finedays * DATEDIFF(returndate,date_due) ) AS blockingdate,
+    #        DATEDIFF(ADDDATE(returndate, finedays * DATEDIFF(returndate,date_due)),NOW()) AS blockedcount
+    #        FROM old_issues
+	#};
     # or if he must wait to loan
     if(C4::Context->preference("item-level_itypes")){
         $strsth.=
@@ -651,7 +656,7 @@ sub IsMemberBlocked {
     my $blockedcount = $row->{'blockedcount'};
 
     return (1, $blockedcount) if $blockedcount > 0;
-
+=cut
     return 0
 }
 

@@ -293,7 +293,15 @@ function refocus(calendar) {
         <!-- TMPL_IF NAME="STATS" -->
             <li>Local Use Recorded</li>
         <!-- /TMPL_IF -->
-
+        
+        <!-- TMPL_IF NAME="USERBLOCKEDREMAINING" -->
+		    <li>The patron has ITEM/s OVERDUE</li>
+		<!-- /TMPL_IF -->
+		
+		<!-- TMPL_IF NAME="USERBLOCKEDOVERDUE" -->
+		    <li>The patron has outstanding fines. The loans will get blocked for <!-- TMPL_VAR name="USERBLOCKEDOVERDUE" --> day/s. </li>
+		<!-- /TMPL_IF -->
+	
         <!-- TMPL_IF NAME="INVALID_DATE" -->
             <li>The due date &quot;<!-- TMPL_VAR NAME="INVALID_DATE" -->&quot; is invalid</li>
         <!-- /TMPL_IF -->
@@ -330,6 +338,10 @@ function refocus(calendar) {
             <li>No more renewals possible</li>
         <!-- /TMPL_IF -->
 
+        <!-- TMPL_IF NAME="EXPIRED" -->
+            <li>Patron's card is expired</li>
+        <!-- /TMPL_IF -->
+        
         <!-- TMPL_IF NAME="EXPIRED" -->
             <li>Patron's card is expired</li>
         <!-- /TMPL_IF -->

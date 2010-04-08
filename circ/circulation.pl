@@ -146,10 +146,12 @@ if($duedatespec_allow){
                 # i.e., it has to be later than today/now
                 $datedue = $tempdate;
             } else {
+            	warn "1";
                 $invalidduedate = 1;
                 $template->param(IMPOSSIBLE=>1, INVALID_DATE=>$duedatespec);
             }
         } else {
+        	warn "2";
             $invalidduedate = 1;
             $template->param(IMPOSSIBLE=>1, INVALID_DATE=>$duedatespec);
         }
@@ -280,6 +282,7 @@ if ($barcode) {
 
     delete $question->{'DEBT'} if ($debt_confirmed);
     foreach my $impossible ( keys %$error ) {
+    	warn "3".$impossible."--".$debt_confirmed;
         $template->param(
             $impossible => $$error{$impossible},
             IMPOSSIBLE  => 1

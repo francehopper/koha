@@ -696,7 +696,7 @@ sub calcDateFineDay{
                my ($datedue_year, $datedue_month,$datedue_day)= Add_Delta_Days(@arr_startdate, $finelength);
                
                 $datedue = C4::Dates->new($datedue_year."-".$datedue_month."-".$datedue_day,'iso');
-                $days_waiting = Date_to_Days(split('-',$datedue->output('iso'))) - Date_to_Days(split('-',$startdate_->output('iso')));
+                $days_waiting = Date_to_Days(split('-',$datedue->output('iso'))) - Date_to_Days(split('-',$today->output('iso')));
 
        } else {
                my $calendar = C4::Calendar->new(  branchcode => $branch );

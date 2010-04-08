@@ -730,11 +730,6 @@ sub CanBookBeIssued {
         }
     }
     
-    my ($borrower_datedue,$allfile)= &C4::Members::GetMemberAccountRecordsFinesDays($borrower);   
-    if($borrower_datedue){
-    ## blocked because of overdue return
-    	$issuingimpossible{USERBLOCKEDFINEDAYSPENALIZED} = $borrower_datedue;
-    }
 
     my ($blocktype, $count) = C4::Members::IsMemberBlocked($borrower->{'borrowernumber'});
     if($blocktype == -1){

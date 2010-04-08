@@ -57,32 +57,24 @@ my $user = $input->remote_user;
 my $branches = GetBranches();
 
 my $branch   = GetBranch( $input, $branches );
-=cut
+
 my @names = $input->param;
 my %inp;
-=cut
+
 my $check = 0;
-=cut
-warn Data::Dumper::Dumper($data);
+
 for ( my $i = 0 ; $i < @names ; $i++ ) {
     my $temp = $input->param( $names[$i] );
     if ( $temp eq 'wo' ) {
         $inp{ $names[$i] } = $temp;
         $check = 1;
-    }
-    if ( $temp eq 'yes' ) {
+    }   
 
-# FIXME : using array +4, +5, +6 is dirty. Should use arrays for each accountline
-        my $amount         = $input->param( $names[ $i + 4 ] );
-        my $borrowernumber = $input->param( $names[ $i + 5 ] );
-        my $accountno      = $input->param( $names[ $i + 6 ] );
-        makepayment( $borrowernumber, $accountno, $amount, $user, $branch );
-        $check = 2;
-    }
 }
-warn "check ".$check;
-=cut
+
+
 my $total = $input->param('total');
+
 if ( $check == 0 ) {
     
 
@@ -136,6 +128,7 @@ if ( $check == 0 ) {
             $inp{ $name[$i] } = $temp;
         }
     }
+    
     my $borrowernumber;
     while ( my ( $key, $value ) = each %inp ) {
 
